@@ -1,0 +1,52 @@
+* {
+  box-sizing: border-box;
+}
+ul {
+  margin: 0;
+  padding: 0;
+}
+/* Стиль элементов списка */
+ul li {
+  cursor: pointer;
+  position: relative;
+  padding: 3px 2px 3px 10px;
+  background: #eee;
+  font-size: 18px;
+  transition: 0.2s;
+
+  /* сделайте элементы списка невыбираемыми */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Установить все нечетные элементы списка в другой цвет (зебра) */
+ul li:nth-child(odd) {
+  background: #f9f9f9;
+}
+
+/* Более темный фон-цвет при наведении */
+ul li:hover {
+  background: #ddd;
+}
+.alert {
+    padding: 20px;
+    background-color: #f44336;
+    color: white;
+}
+
+.closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.closebtn:hover {
+    color: black;
+}
