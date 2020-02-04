@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.1/axios.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.css" />
+</head>
+<body>
+	
+	<div id="app" class="container">
+		<div class="row mt-4" v-if="cities_data">
+			<div class="col">
+				<input ref="city_search_string" type="text" v-model="city_search_string" class="form-control" placeholder="Введите название города">
+				<ul class="list-group">
+					<li class="list-group-item" v-for="city in cites_matches_array" @click="addCityCard(city)">
+						{{ city.name }} <small class="text-muted">{{ city.subcountry }}</small>
+					</li>
+					<li class="list-group-item font-italic text-muted no-results-message" v-if="city_search_string !== '' && cites_matches_array.length == 0">
+						Нет вариантов
+					</li>
+				</ul>
+			</div>
+			<div class="col">
+				<template v-for="city in cities_cards">
+					<div class="card mb-2">
+						<div class="card-body">
+							<div class="float-right">
+								<button class="btn btn-outline-secondary btn-sm" @click="removeCity(city)">Remove</button>
+							</div>
+							<h3>
+								{{ city.name }}
+							</h3>
+							{{ city.subcountry }}
+						</div>
+					</div>
+				</template>
+			</div>
+		</div>
+		<div class="text-center mt-4" v-else>Загрузка ...</div>
+	</div>
+	<script>
+
+
+		const App = new Vue({
+
+			el: '#app',
+
+			data: {
+				
+				cities_data: null,
+				cities_data_url: 'https://pkgstore.datahub.io/core/world-cities/world-cities_json/data/5b3dd46ad10990bca47b04b4739a02ba/world-cities_json.json',
+				city_search_string: '',
+				cites_matches_array: [],
+				cities_cards: [],
+			},
+
+			watch: {
+				city_search_string(){
+					let city_search_string = this.city_search_string.trim().toLowerCase();
+					this.getCitiesMathcesArray(city_search_string);
+				}
+			},
+
+			methods: {
+				addCityCard(city){
+					if (this.cities_cards.find(x => x.geonameid == city.geonameid)) return;
+					this.cities_cards.push(city);
+					this.city_search_string = '';
+					this.$refs.city_search_string.focus();
+				},
+
+				removeCity(city){
+					this.cities_cards = this.cities_cards.filter(x => x.geonameid !== city.geonameid);
+				},
+
+				getCitiesMathcesArray(string){
+					let matches = [];
+					
+					if (!string) {
+						this.cites_matches_array = [];
+						return;
+					}
+
+					for (let city of this.cities_data){
+						if (this.cities_cards.includes(city)) continue;
+						if (city.search_string.indexOf(string) == 0){
+							matches.unshift(city);
+						} else if (city.search_string.indexOf(string) > 0){
+							matches.push(city);
+						}
+						if (matches.length >= 10) break;
+					}
+					this.cites_matches_array = matches;
+				},
+
+				getCitiesData(){
+					axios({
+						url: this.cities_data_url,
+						method: 'get',
+					}).then(response => response.data).then(data => {
+						data.forEach(x => {
+							x.search_string = x.name.toLowerCase();
+						})
+						this.cities_data = data;
+					})
+				}
+			},
+
+			mounted(){
+			
+					this.getCitiesData();
+			}
+		})
+	</script>
+
+	<style>
+		.list-group-item:hover{
+			background: #eee;
+			cursor: pointer;
+			user-select: none;
+		}
+		.text-muted.no-results-message{
+			cursor: default;
+		}
+	</style>
+</body>
+</html>
